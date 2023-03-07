@@ -13,13 +13,19 @@ function startGL()
     uniform mat4 xMVMatrix;
     uniform mat4 yMVMatrix;
     uniform mat4 uPMatrix;
+
+    varying float zDepth;
+
     void main(void) {
       gl_Position = uPMatrix * uMVMatrix * xMVMatrix * yMVMatrix * vec4(aVertexPosition, 1.0); //Dokonanie transformacji położenia punktów z przestrzeni 3D do przestrzeni obrazu (2D)
+        zDepth = (1.0 + gl_Position.z) / 5.0;
     }
   `;
   const fragmentShaderSource = `
+    varying highp float zDepth;
     void main(void) {
-       gl_FragColor = vec4(0.0,1.0,0.0,1.0); //Ustalenie stałego koloru wszystkich punktów sceny
+       //gl_FragColor = vec4(0.0,1.0,0.0,1.0); //Ustalenie stałego koloru wszystkich punktów sceny
+        gl_FragColor = vec4(zDepth, zDepth, zDepth, 1.0);
     }
   `;
   let fragmentShader = gl.createShader(gl.FRAGMENT_SHADER); //Stworzenie obiektu shadera 
@@ -94,14 +100,14 @@ function startGL()
     1,0,0,0,
     0,Math.cos(angle*Math.PI/180.0),-Math.sin(angle*Math.PI/180.0), 0,
     0, Math.sin(angle*Math.PI/180.0),Math.cos(angle*Math.PI/180.0), 0,
-    0,0.4,-2,1 
+    2.2,0,0,1 
   ]
 
   let yMVMatrix = [
     Math.cos(angle*Math.PI/180.0),0,Math.sin(angle*Math.PI/180.0),0,
     0,1,0, 0,
     -Math.sin(angle*Math.PI/180.0), 0,Math.cos(angle*Math.PI/180.0), 0,
-    -1,1,0,1 
+    0,0,0,1 
   ]
   //alert(uPMatrix);
   
