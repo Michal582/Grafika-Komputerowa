@@ -19,6 +19,9 @@
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.shadowMap.autoUpdate = false;
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
@@ -45,6 +48,8 @@
         const materialFloor = new THREE.MeshBasicMaterial({ map: textureFloor });
         const floor = new THREE.Mesh(geometryFloor, materialFloor);
         floor.position.y = -height / 2; // Obniż podłogę o połowę jej wysokości
+        floor.castShadow = true;
+        floor.receiveShadow = true;
         scene.add(floor);
 
         // Tworzenie geometrii nieba
@@ -54,14 +59,27 @@
         const sky = new THREE.Mesh(skyGeometry, materialSky);
         scene.add(sky);
 
-        // Dodanie okręgu nad drogą jako źródło światła (przypominające słońce)
-        const circleRadius = 5;
+        // Dodanie słońca
+        const circleRadius = 2;
         const circleHeight = 0.1;
         const circleGeometry = new THREE.SphereGeometry(circleRadius, 32, 32);
         const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFF00 });
         const circle = new THREE.Mesh(circleGeometry, circleMaterial);
         circle.position.y = 20; // Wysokość okręgu nad drogą
+        circle.castShadow = true;
         scene.add(circle);
+
+        // Dodanie prostokątnego słupek przy drodze
+        const postWidth = 0.2;
+        const postHeight = 1;
+        const postLength = 0.2;
+
+        const geometryPost = new THREE.BoxGeometry(postWidth, postHeight, postLength);
+        const materialPost = new THREE.MeshBasicMaterial({ color: 0x654321 });
+        const post = new THREE.Mesh(geometryPost, materialPost);
+        post.position.set(0, postHeight / 2, -length / 4); // Ustawienie pozycji słupka przy drodze
+        post.castShadow = true; // Ustawienie słupka jako obiektu rzutującego cień
+        scene.add(post);
 
         // Ustawienie pozycji kamery
         const cameraHeight = 1; // Wysokość kamery nad podłogą
@@ -144,10 +162,16 @@
             }
         }
 
-        // Dodanie słońca jako źródło światła
+        // Dodanie słońca jako źródła światła
         const sun = new THREE.PointLight(0xffffff, 1, 100);
         sun.position.set(0, 50, -50);
+        sun.castShadow = true;
         scene.add(sun);
+
+        renderer.shadowMap.needsUpdate = true;
+        floor.receiveShadow = true;
+        circle.castShadow = true;
+        post.castShadow = true;
 
         // Animacja
         function animate() {
