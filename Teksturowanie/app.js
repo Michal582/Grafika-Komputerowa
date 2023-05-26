@@ -3,8 +3,6 @@ var shaderProgram;
 var uPMatrix;
 var vertexPositionBuffer;
 var vertexColorBuffer;
-let vertexCoordsBuffer;
-let textureBuffer;
 function MatrixMul(a,b) //Mnożenie macierzy
 {
   c = [
@@ -58,7 +56,7 @@ function startGL()
     uniform sampler2D uSampler;
     void main(void) {
       //gl_FragColor = vec4(vColor,1.0); //Ustalenie stałego koloru wszystkich punktów sceny
-      gl_FragColor = texture2D(uSampler,vTexUV); //Odczytanie punktu tekstury i przypisanie go jako koloru danego punktu renderowaniej figury
+      gl_FragColor = texture2D(uSampler,vTexUV)*vec4(vColor,1.0); //Odczytanie punktu tekstury i przypisanie go jako koloru danego punktu renderowaniej figury
     }
   `;
   let fragmentShader = gl.createShader(gl.FRAGMENT_SHADER); //Stworzenie obiektu shadera 
@@ -143,7 +141,7 @@ function startGL()
     0.0, 0.0,  1.0, 0.0,  1.0, 1.0, //3 punkty po 2 składowe - U1,V1, U2,V2, U3,V3 - 1 trójkąt
     0.0, 0.0,  1.0, 1.0,  0.0, 1.0,
   //Left
-    0.0, 0.0,  1.0, 0.0,  1.0, 1.0,
+    1.0, 0.0,  1.0, 1.0,  0.0, 0.0,
     0.0, 0.0,  1.0, 1.0,  0.0, 1.0,
   //Right
     0.0, 0.0,  1.0, 0.0,  1.0, 1.0,
@@ -175,7 +173,6 @@ function startGL()
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   }
   textureImg.src="Tex.png"; //Nazwa obrazka
-
 
   //Macierze opisujące położenie wirtualnej kamery w przestrzenie 3D
   let aspect = gl.viewportWidth/gl.viewportHeight;
@@ -273,7 +270,7 @@ function Tick()
   
   gl.drawArrays(gl.TRIANGLES, 0, vertexPositionBuffer.numItems*vertexPositionBuffer.itemSize); //Faktyczne wywołanie rendrowania
    
-  setTimeout(Tick,10);
+  setTimeout(Tick,100);
 }
 function handlekeydown(e)
 {
