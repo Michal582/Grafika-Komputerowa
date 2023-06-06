@@ -22,18 +22,37 @@
  var sky = new THREE.Mesh(skyGeometry, skyMaterial);
  scene.add(sky);
 
- // Tworzenie sześcianu
- var cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
- var cubeMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
- var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
- scene.add(cube);
+// Tworzenie geometrii podłogi
+const width = 100;
+const length = 100;
+const height = 0.01;
+const textureRepeatX = 50; // Liczba powtórzeń tekstury wzdłuż osi X
+const textureRepeatY = 50; // Liczba powtórzeń tekstury wzdłuż osi Y
+
+const geometryFloor = new THREE.BoxGeometry(width, height, length);
+geometryFloor.faceVertexUvs[0][0][0].set(0, 0);
+geometryFloor.faceVertexUvs[0][0][2].set(textureRepeatX, 0);
+geometryFloor.faceVertexUvs[0][0][1].set(0, textureRepeatY);
+geometryFloor.faceVertexUvs[0][1][0].set(0, textureRepeatY);
+geometryFloor.faceVertexUvs[0][1][2].set(textureRepeatX, 0);
+geometryFloor.faceVertexUvs[0][1][1].set(textureRepeatX, textureRepeatY);
+
+const textureFloor = new THREE.TextureLoader().load('./textures/road.jpg');
+textureFloor.wrapS = THREE.RepeatWrapping;
+textureFloor.wrapT = THREE.RepeatWrapping;
+textureFloor.repeat.set(textureRepeatX, textureRepeatY);
+
+const materialFloor = new THREE.MeshBasicMaterial({ map: textureFloor });
+const floor = new THREE.Mesh(geometryFloor, materialFloor);
+floor.position.y = -height / 2; // Obniż podłogę o połowę jej wysokości
+floor.castShadow = true;
+floor.receiveShadow = true;
+scene.add(floor);
 
  // Animacja
  function animate() {
    requestAnimationFrame(animate);
    updateCameraPosition()
-   cube.rotation.x += 0.01;
-   cube.rotation.y += 0.01;
    renderer.render(scene, camera);
    
  }

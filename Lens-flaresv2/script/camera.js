@@ -32,13 +32,16 @@ function handleMouseMove(event) {
     headRotationY -= movementX * sensitivity;
     const headRotationX = camera.rotation.x - movementY * sensitivity;
 
-    camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, headRotationX));
+    const maxVerticalAngle = Math.PI / 4; // Maksymalny kąt obrotu w pionie (w górę i w dół)
+
+    camera.rotation.x = Math.max(-maxVerticalAngle, Math.min(maxVerticalAngle, headRotationX));
     camera.rotation.y = headRotationY;
   }
 
   prevMouseX = event.clientX;
   prevMouseY = event.clientY;
 }
+
 
 function handleMouseDown(event) {
   if (event.button === 0) {
@@ -73,4 +76,13 @@ function updateCameraPosition(){
   if (keyboardState['KeyD'] || keyboardState['ArrowRight']) {
     camera.position.add(camera.getWorldDirection().cross(new THREE.Vector3(0, 1, 0)).normalize().multiplyScalar(cameraSpeed));
   }
+
+  camera.position.y = Math.max(cameraHeight, camera.position.y);
+  // Ograniczenie ruchu kamery na boki do szerokości drogi
+  var maxCameraX = width / 2 - 0.5;
+  camera.position.x = Math.max(-maxCameraX, Math.min(maxCameraX, camera.position.x));
+
+  var maxCameraZ = length / 2 - 0.5;
+  camera.position.z = Math.max(-maxCameraZ, Math.min(maxCameraZ, camera.position.z));
+
 }
