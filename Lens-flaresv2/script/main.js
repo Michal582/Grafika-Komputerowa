@@ -1,8 +1,6 @@
  // Tworzenie sceny
  var scene = new THREE.Scene();
 
-
-
  // Tworzenie renderera
  var renderer = new THREE.WebGLRenderer();
  renderer.setSize(window.innerWidth, window.innerHeight);
@@ -22,7 +20,7 @@
  var sky = new THREE.Mesh(skyGeometry, skyMaterial);
  scene.add(sky);
 
-// Tworzenie geometrii podłogi
+// Tworzenie podłogi
 const width = 100;
 const length = 100;
 const height = 0.01;
@@ -44,12 +42,12 @@ textureFloor.repeat.set(textureRepeatX, textureRepeatY);
 
 const materialFloor = new THREE.MeshBasicMaterial({ map: textureFloor });
 const floor = new THREE.Mesh(geometryFloor, materialFloor);
-floor.position.y = -height / 2; // Obniż podłogę o połowę jej wysokości
+floor.position.y = -height / 2;
 floor.castShadow = true;
 floor.receiveShadow = true;
 scene.add(floor);
 
- // Animacja
+ // Render sceny
  function animate() {
    requestAnimationFrame(animate);
    updateCameraPosition()
