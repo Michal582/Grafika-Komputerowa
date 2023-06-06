@@ -21,8 +21,8 @@
  scene.add(sky);
 
 // Tworzenie podłogi
-const width = 100;
-const length = 100;
+const width = 120;
+const length = 120;
 const height = 0.01;
 const textureRepeatX = 50; // Liczba powtórzeń tekstury wzdłuż osi X
 const textureRepeatY = 50; // Liczba powtórzeń tekstury wzdłuż osi Y
@@ -46,6 +46,32 @@ floor.position.y = -height / 2;
 floor.castShadow = true;
 floor.receiveShadow = true;
 scene.add(floor);
+
+// Tworzenie budynków
+var numBuildings = 6; // Liczba budynków w jednym wierszu i kolumnie
+var buildingSize = 10; // Rozmiar pojedynczego budynku
+var spacing = 20; // Odległość międazy budynkami
+
+var startX = -((numBuildings - 1) * spacing) / 2;; // Startowa pozycja X dla pierwszego budynku
+var startY = -((numBuildings - 1) * spacing) / 2;; // Startowa pozycja Y dla pierwszego budynku
+
+/**
+ * TODO: Dodać tekstury
+ */
+for (var i = 0; i < numBuildings; i++) {
+  for (var j = 0; j < numBuildings; j++) {
+    var buiildingHeight = Math.random() * (30 - 15) + 15 / 2;
+
+    var buildingGeometry = new THREE.BoxGeometry(buildingSize, buiildingHeight, buildingSize);
+    var buildingMaterial = new THREE.MeshPhongMaterial({ color: 0x808080 });
+    var building = new THREE.Mesh(buildingGeometry, buildingMaterial);
+    building.position.x = startX + i * spacing;
+    building.position.z = startY + j * spacing;
+    building.position.y = height / 2;
+
+    scene.add(building);
+  }
+}
 
  // Render sceny
  function animate() {
