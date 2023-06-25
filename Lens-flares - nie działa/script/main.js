@@ -1,4 +1,39 @@
- // Tworzenie sceny
+import * as THREE from 'https://unpkg.com/three@0.122.0/build/three.module.js';
+import { Lensflare, LensflareElement} from './Lensflare.js';
+import CameraControl from './cameraControl.js';
+
+(() => {
+let cameraControl = new CameraControl()
+cameraControl.camera.position.set(0, 5, 10)
+
+/**
+ * build and render hexagon - will be used as lensflare 
+*/
+let hexagonRadius = 1; 
+let hexagonSides = 6; // Liczba boków heksagonu
+
+let hexagonGeometry = new THREE.Geometry();
+for (let i = 0; i <= hexagonSides; i++) {
+  let angle = (Math.PI * 2 * i) / hexagonSides;
+  let x = Math.cos(angle) * hexagonRadius;
+  let y = Math.sin(angle) * hexagonRadius;
+  hexagonGeometry.vertices.push(new THREE.Vector3(x, y+10, 0));
+  hexagonGeometry.faces.push(new THREE.Face3(0, i+1, (i+2) % 6));
+}
+
+let hexagonMaterial = new THREE.MeshBasicMaterial({ color: 0x111111 })
+let hexagonMesh = new THREE.Mesh(hexagonGeometry, hexagonMaterial);
+
+/**
+ * lensflare setup
+ */
+let lensflare = new Lensflare()
+let hexagonLensflareElement = new LensflareElement(hexagonMesh.material.color.getHex(), 0.5, 0, hexagonMesh.material.opacity)
+lensflare.addElement(hexagonLensflareElement)
+lensflare.position.copy(hexagonMesh.position)
+
+
+// Tworzenie sceny
  var scene = new THREE.Scene();
 
  // Tworzenie renderera
@@ -8,8 +43,12 @@
 
  // Dodanie światła punktowego do sceny
  var light = new THREE.PointLight(0xffffff, 1, 0);
- light.position.set(0, 0, 10);
+
+ //make light slightly above camera's default position, and make it in front of it
+ light.position.set(0, 5, -10);
  scene.add(light);
+
+ scene.add(hexagonMesh);
 
  // Tworzenie nieba
  var skyGeometry = new THREE.SphereGeometry(500, 60, 40);
@@ -24,30 +63,33 @@
 const width = 120;
 const length = 120;
 const height = 0.01;
-const textureRepeatX = 50; // Liczba powtórzeń tekstury wzdłuż osi X
-const textureRepeatY = 50; // Liczba powtórzeń tekstury wzdłuż osi Y
+const floorTextureRepeatX = 50; // Liczba powtórzeń tekstury wzdłuż osi X
+const floorTextureRepeatY = 50; // Liczba powtórzeń tekstury wzdłuż osi Y
 
-const geometryFloor = new THREE.BoxGeometry(width, height, length);
-geometryFloor.faceVertexUvs[0][0][0].set(0, 0);
-geometryFloor.faceVertexUvs[0][0][2].set(textureRepeatX, 0);
-geometryFloor.faceVertexUvs[0][0][1].set(0, textureRepeatY);
-geometryFloor.faceVertexUvs[0][1][0].set(0, textureRepeatY);
-geometryFloor.faceVertexUvs[0][1][2].set(textureRepeatX, 0);
-geometryFloor.faceVertexUvs[0][1][1].set(textureRepeatX, textureRepeatY);
+const floorGeometry = new THREE.BoxGeometry(width, height, length);
+floorGeometry.faceVertexUvs[0][0][0].set(0, 0);
+floorGeometry.faceVertexUvs[0][0][2].set(floorTextureRepeatX, 0);
+floorGeometry.faceVertexUvs[0][0][1].set(0, floorTextureRepeatY);
+floorGeometry.faceVertexUvs[0][1][0].set(0, floorTextureRepeatY);
+floorGeometry.faceVertexUvs[0][1][2].set(floorTextureRepeatX, 0);
+floorGeometry.faceVertexUvs[0][1][1].set(floorTextureRepeatX, floorTextureRepeatY);
 
-const textureFloor = new THREE.TextureLoader().load('./textures/road.jpg');
-textureFloor.wrapS = THREE.RepeatWrapping;
-textureFloor.wrapT = THREE.RepeatWrapping;
-textureFloor.repeat.set(textureRepeatX, textureRepeatY);
+const floorTexture = new THREE.TextureLoader().load('./textures/road.jpg');
+floorTexture.wrapS = THREE.RepeatWrapping;
+floorTexture.wrapT = THREE.RepeatWrapping;
+floorTexture.repeat.set(floorTextureRepeatX, floorTextureRepeatY);
 
-const materialFloor = new THREE.MeshBasicMaterial({ map: textureFloor });
-const floor = new THREE.Mesh(geometryFloor, materialFloor);
+const floorMaterial = new THREE.MeshBasicMaterial({ map: floorTexture });
+const floor = new THREE.Mesh(floorGeometry, floorMaterial);
 floor.position.y = -height / 2;
 floor.castShadow = true;
 floor.receiveShadow = true;
 scene.add(floor);
 
+
 // Tworzenie budynków
+// const buildingTexture = new THREE.TextureLoader().load('./textures/building.jpg')
+// const buildingMaterial = new THREE.MeshBasicMaterial({ map: buildingTexture });
 var numBuildings = 6; // Liczba budynków w jednym wierszu i kolumnie
 var buildingSize = 10; // Rozmiar pojedynczego budynku
 var spacing = 20; // Odległość międazy budynkami
@@ -73,12 +115,21 @@ for (var i = 0; i < numBuildings; i++) {
   }
 }
 
+
+/**
+ * todo: 999 errors
+ */
+// light.add(lensflare);
+
+
  // Render sceny
  function animate() {
-   requestAnimationFrame(animate);
-   updateCameraPosition()
-   renderer.render(scene, camera);
+   requestAnimationFrame(animate)
+   cameraControl.updateCameraPosition(innerWidth, innerHeight)
+   renderer.render(scene, cameraControl.camera)
    
  }
 
  animate();
+
+})()
