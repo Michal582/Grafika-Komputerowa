@@ -5,32 +5,43 @@ import CameraControl from './cameraControl.js';
 (() => {
 let cameraControl = new CameraControl()
 cameraControl.camera.position.set(0, 5, 10)
+let textureLoader = new THREE.TextureLoader()
 
 /**
  * build and render hexagon - will be used as lensflare 
 */
-let hexagonRadius = 1; 
-let hexagonSides = 6; // Liczba boków heksagonu
+// let hexagonRadius = 1; 
+// let hexagonSides = 6; // Liczba boków heksagonu
 
-let hexagonGeometry = new THREE.Geometry();
-for (let i = 0; i <= hexagonSides; i++) {
-  let angle = (Math.PI * 2 * i) / hexagonSides;
-  let x = Math.cos(angle) * hexagonRadius;
-  let y = Math.sin(angle) * hexagonRadius;
-  hexagonGeometry.vertices.push(new THREE.Vector3(x, y+10, 0));
-  hexagonGeometry.faces.push(new THREE.Face3(0, i+1, (i+2) % 6));
-}
+// let hexagonGeometry = new THREE.Geometry();
+// for (let i = 0; i <= hexagonSides; i++) {
+//   let angle = (Math.PI * 2 * i) / hexagonSides;
+//   let x = Math.cos(angle) * hexagonRadius;
+//   let y = Math.sin(angle) * hexagonRadius;
+//   hexagonGeometry.vertices.push(new THREE.Vector3(x, y+10, 0));
+//   hexagonGeometry.faces.push(new THREE.Face3(0, i+1, (i+2) % 6));
+// }
 
-let hexagonMaterial = new THREE.MeshBasicMaterial({ color: 0x111111 })
-let hexagonMesh = new THREE.Mesh(hexagonGeometry, hexagonMaterial);
+// let hexagonMaterial = new THREE.MeshBasicMaterial({ color: 0x111111 })
+// let hexagonMesh = new THREE.Mesh(hexagonGeometry, hexagonMaterial);
 
 /**
  * lensflare setup
  */
 let lensflare = new Lensflare()
-let hexagonLensflareElement = new LensflareElement(hexagonMesh.material.color.getHex(), 0.5, 0, hexagonMesh.material.opacity)
-lensflare.addElement(hexagonLensflareElement)
-lensflare.position.copy(hexagonMesh.position)
+
+/**
+ * czemu to cholerstwo wyrzuca błędy
+ */
+
+// let hexagonLensflareElement = new LensflareElement(hexagonMesh.material.color.getHex(), 0.5, 0, hexagonMesh.material.opacity)
+// lensflare.addElement(hexagonLensflareElement)
+// lensflare.position.copy(hexagonMesh.position)
+
+const lensTexture = textureLoader.load('./textures/hex.png');
+lensflare.addElement(new LensflareElement(lensTexture, 512, 0))
+lensflare.addElement(new LensflareElement(lensTexture, 512, 0.3))
+lensflare.addElement(new LensflareElement(lensTexture, 512, 0.6))
 
 
 // Tworzenie sceny
@@ -48,12 +59,17 @@ lensflare.position.copy(hexagonMesh.position)
  light.position.set(0, 5, -10);
  scene.add(light);
 
- scene.add(hexagonMesh);
+/**
+ * todo: 999 errors NADAL
+ */
+// light.add(lensflare);
+
+//  scene.add(hexagonMesh)
 
  // Tworzenie nieba
  var skyGeometry = new THREE.SphereGeometry(500, 60, 40);
  var skyMaterial = new THREE.MeshBasicMaterial({
-   map: new THREE.TextureLoader().load('./textures/sky.jpg'),
+   map: textureLoader.load('./textures/sky.jpg'),
    side: THREE.BackSide
  });
  var sky = new THREE.Mesh(skyGeometry, skyMaterial);
@@ -74,7 +90,7 @@ floorGeometry.faceVertexUvs[0][1][0].set(0, floorTextureRepeatY);
 floorGeometry.faceVertexUvs[0][1][2].set(floorTextureRepeatX, 0);
 floorGeometry.faceVertexUvs[0][1][1].set(floorTextureRepeatX, floorTextureRepeatY);
 
-const floorTexture = new THREE.TextureLoader().load('./textures/road.jpg');
+const floorTexture = textureLoader.load('./textures/road.jpg');
 floorTexture.wrapS = THREE.RepeatWrapping;
 floorTexture.wrapT = THREE.RepeatWrapping;
 floorTexture.repeat.set(floorTextureRepeatX, floorTextureRepeatY);
@@ -88,7 +104,7 @@ scene.add(floor);
 
 
 // Tworzenie budynków
-// const buildingTexture = new THREE.TextureLoader().load('./textures/building.jpg')
+// const buildingTexture = textureLoader.load('./textures/building.jpg')
 // const buildingMaterial = new THREE.MeshBasicMaterial({ map: buildingTexture });
 var numBuildings = 6; // Liczba budynków w jednym wierszu i kolumnie
 var buildingSize = 10; // Rozmiar pojedynczego budynku
@@ -114,12 +130,6 @@ for (var i = 0; i < numBuildings; i++) {
     scene.add(building);
   }
 }
-
-
-/**
- * todo: 999 errors
- */
-// light.add(lensflare);
 
 
  // Render sceny
