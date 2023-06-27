@@ -116,6 +116,9 @@ for (var i = 0; i < numBuildings; i++) {
  // Render sceny
  function animate() {
    requestAnimationFrame(animate)
+  /**
+   * TODO: fix that dummy camera
+   */
    cameraControl.updateCameraPosition(innerWidth, innerHeight)
    renderer.render(scene, cameraControl.camera)
    
