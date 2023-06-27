@@ -1,4 +1,4 @@
-import * as THREE from 'https://unpkg.com/three@0.122.0/build/three.module.js';
+import * as THREE from 'https://unpkg.com/three@0.153.0/build/three.module.js';
 import { Lensflare, LensflareElement} from './Lensflare.js';
 import CameraControl from './cameraControl.js';
 
@@ -6,42 +6,6 @@ import CameraControl from './cameraControl.js';
 let cameraControl = new CameraControl()
 cameraControl.camera.position.set(0, 5, 10)
 let textureLoader = new THREE.TextureLoader()
-
-/**
- * build and render hexagon - will be used as lensflare 
-*/
-// let hexagonRadius = 1; 
-// let hexagonSides = 6; // Liczba boków heksagonu
-
-// let hexagonGeometry = new THREE.Geometry();
-// for (let i = 0; i <= hexagonSides; i++) {
-//   let angle = (Math.PI * 2 * i) / hexagonSides;
-//   let x = Math.cos(angle) * hexagonRadius;
-//   let y = Math.sin(angle) * hexagonRadius;
-//   hexagonGeometry.vertices.push(new THREE.Vector3(x, y+10, 0));
-//   hexagonGeometry.faces.push(new THREE.Face3(0, i+1, (i+2) % 6));
-// }
-
-// let hexagonMaterial = new THREE.MeshBasicMaterial({ color: 0x111111 })
-// let hexagonMesh = new THREE.Mesh(hexagonGeometry, hexagonMaterial);
-
-/**
- * lensflare setup
- */
-let lensflare = new Lensflare()
-
-/**
- * czemu to cholerstwo wyrzuca błędy
- */
-
-// let hexagonLensflareElement = new LensflareElement(hexagonMesh.material.color.getHex(), 0.5, 0, hexagonMesh.material.opacity)
-// lensflare.addElement(hexagonLensflareElement)
-// lensflare.position.copy(hexagonMesh.position)
-
-const lensTexture = textureLoader.load('./textures/hex.png');
-lensflare.addElement(new LensflareElement(lensTexture, 512, 0))
-lensflare.addElement(new LensflareElement(lensTexture, 512, 0.3))
-lensflare.addElement(new LensflareElement(lensTexture, 512, 0.6))
 
 
 // Tworzenie sceny
@@ -57,14 +21,24 @@ lensflare.addElement(new LensflareElement(lensTexture, 512, 0.6))
 
  //make light slightly above camera's default position, and make it in front of it
  light.position.set(0, 5, -10);
- scene.add(light);
 
-/**
- * todo: 999 errors NADAL
+
+ /**
+ * lensflare setup
  */
-// light.add(lensflare);
+const lensSourceTexture = textureLoader.load('./textures/lensHexSource.png');
+const lensHitTexture    = textureLoader.load('./textures/lensHexHit.png');
 
-//  scene.add(hexagonMesh)
+const lensflare = new Lensflare()
+lensflare.addElement(new LensflareElement(lensSourceTexture, 200, 0, light.color))
+lensflare.addElement(new LensflareElement(lensHitTexture, 100, 0.45))
+lensflare.addElement(new LensflareElement(lensHitTexture, 80, 0.6))
+lensflare.addElement(new LensflareElement(lensHitTexture, 60, 0.65))
+lensflare.addElement(new LensflareElement(lensHitTexture, 70, 0.75))
+
+light.add(lensflare)
+
+scene.add(light);
 
  // Tworzenie nieba
  var skyGeometry = new THREE.SphereGeometry(500, 60, 40);
@@ -82,13 +56,18 @@ const height = 0.01;
 const floorTextureRepeatX = 50; // Liczba powtórzeń tekstury wzdłuż osi X
 const floorTextureRepeatY = 50; // Liczba powtórzeń tekstury wzdłuż osi Y
 
-const floorGeometry = new THREE.BoxGeometry(width, height, length);
-floorGeometry.faceVertexUvs[0][0][0].set(0, 0);
-floorGeometry.faceVertexUvs[0][0][2].set(floorTextureRepeatX, 0);
-floorGeometry.faceVertexUvs[0][0][1].set(0, floorTextureRepeatY);
-floorGeometry.faceVertexUvs[0][1][0].set(0, floorTextureRepeatY);
-floorGeometry.faceVertexUvs[0][1][2].set(floorTextureRepeatX, 0);
-floorGeometry.faceVertexUvs[0][1][1].set(floorTextureRepeatX, floorTextureRepeatY);
+const floorGeometry = new THREE.PlaneGeometry(width*floorTextureRepeatX, length*floorTextureRepeatY)
+
+/**
+ *  works with three.js@1.22, doesnt work with three@1.52
+ */
+// const floorGeometry = new THREE.BoxGeometry(width, height, length);
+// floorGeometry.faceVertexUvs[0][0][0].set(0, 0);
+// floorGeometry.faceVertexUvs[0][0][2].set(floorTextureRepeatX, 0);
+// floorGeometry.faceVertexUvs[0][0][1].set(0, floorTextureRepeatY);
+// floorGeometry.faceVertexUvs[0][1][0].set(0, floorTextureRepeatY);
+// floorGeometry.faceVertexUvs[0][1][2].set(floorTextureRepeatX, 0);
+// floorGeometry.faceVertexUvs[0][1][1].set(floorTextureRepeatX, floorTextureRepeatY);
 
 const floorTexture = textureLoader.load('./textures/road.jpg');
 floorTexture.wrapS = THREE.RepeatWrapping;
@@ -97,7 +76,9 @@ floorTexture.repeat.set(floorTextureRepeatX, floorTextureRepeatY);
 
 const floorMaterial = new THREE.MeshBasicMaterial({ map: floorTexture });
 const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-floor.position.y = -height / 2;
+floor.position.y = 0;
+// rotation by 90 degree (hell yeah euler)
+floor.rotation.x = -1.5708
 floor.castShadow = true;
 floor.receiveShadow = true;
 scene.add(floor);

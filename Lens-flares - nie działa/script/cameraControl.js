@@ -62,6 +62,8 @@ export default class CameraControl {
   }
 
   updateCameraPosition(width, length) {
+    console.log("XD")
+
     // keyboardState is object of keys modifying another camera,
     // so it's better to leave as it is
     if (this.keyboardState['KeyW'] || this.keyboardState['ArrowUp']) {
