@@ -43,8 +43,8 @@ export default class CameraControl {
 
       const maxVerticalAngle = Math.PI / 4 // Maksymalny kąt obrotu w pionie (w górę i w dół)
 
-      this.camera.rotation.x = Math.max(-maxVerticalAngle, Math.min(maxVerticalAngle, headRotationX))
-      this.camera.rotation.y = this.headRotationY
+      this.camera.rotation.set(Math.max(-maxVerticalAngle, Math.min(maxVerticalAngle, headRotationX)), this.headRotationY, 0)
+      this.camera.position.add(this.camera.getWorldDirection().multiplyScalar(0))
     }
 
     this.prevMouseX = e.clientX
@@ -52,6 +52,7 @@ export default class CameraControl {
   }
 
   handleMouseDown(e) {
+    console.log("Klik");
     this.isMousePressed = true
     this.prevMouseX = e.clientX
     this.prevMouseY = e.clientY
@@ -81,7 +82,7 @@ export default class CameraControl {
 
     this.camera.position.y = Math.max(this.cameraHeight, this.camera.position.y)
 
-    // Ograniczenie ruchu kamery na boki do szerokości drogi
+    // Ograniczenie ruchu kamery na boki wdo szerokości drogi
     var maxCameraX = width / 2 - 0.5
     this.camera.position.x = Math.max(-maxCameraX, Math.min(maxCameraX, this.camera.position.x))
 
