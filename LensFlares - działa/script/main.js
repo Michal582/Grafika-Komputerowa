@@ -48,7 +48,7 @@ import { Lensflare, LensflareElement } from './Lensflare.js'
     createPlanet(5, './textures/uranus.jpg', 0,0,80)
     createPlanet(4, './textures/neptune.jpg', 0,0, 100)
 
-    // Kamera
+    // Kamera - sterowanie
     const controls = new OrbitControls( camera, renderer.domElement)
     document.addEventListener('keydown', handleKeyDown)
     document.addEventListener('keyup', handleKeyUp)
